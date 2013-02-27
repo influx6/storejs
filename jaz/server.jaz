@@ -1,0 +1,40 @@
+var ts = require('tsk').ToolStack,
+	util = ts.Utility,
+	sjs = require('../builds/storejs-server'),
+	m = ts.Matchers;
+
+	//stops throwing of errors
+	m.compliant = false;
+
+
+	sjs.NanoCouchdb.destroyDB('couchable');
+
+	var couch = sjs.NanoCouchdb.use('couchable',{
+		admin: false,
+		username: 'couchable'
+	}).done(function(){
+		m.scoped('should be a Store.Couch object').obj(couch).hasKey('api');
+		m.scoped('should be a Store.Couch object').obj(couch.backend).is('nanoCouchdb');
+	});
+
+	couch.save('shogun',{ key: 'shogunate'}).done(function(res){
+		var scope =  'should be able to add record to store';
+		m.scoped(scope).obj(res).isValid();
+		m.scoped(scope).obj(res.body).isValid();
+		m.scoped(scope).obj(res.body.ok).is(true);
+	}).then(function(){
+		return couch.update('shogun',{ key: "shogunate-tawashi"}).done(function(res){
+			m.scoped('should be able update a record').obj(res.body.ok).is(true);
+			m.scoped('should be able update a record').obj(res.body).hasKeyValue('id','shogun');
+		});
+	}).then(function(){
+		return couch.destroy('shogun').done(function(res){
+			m.scoped('should be able to remove record from store').obj(res.body.ok).is(true);
+		});
+	}).then(function(){
+		return couch.save('shoguns',{ key: 'duremo-shogunate'}).done(function(res){
+			m.scoped('can save a new doc after deleting old doc').obj(res.body).hasKeyValue('id','shoguns');
+		});
+	});
+
+

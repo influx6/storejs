@@ -1,0 +1,19 @@
+#! /usr/bin/env node
+
+var jsc = require('jsconcat');
+
+jsc.compile({
+	uglify: false,
+	build_dir:'./builds',
+	src_dir:'./server',
+	src:['../src/storejs.js','couchdb.js'],
+	name: 'storejs-server.js'
+});
+
+jsc.compile({
+	uglify: true,
+	build_dir:'./builds',
+	src_dir:'./client',
+	src:['../src/storejs.js','localstorage.js'],
+	name: 'storejs-client.js'
+});

@@ -1,0 +1,13 @@
+var ts = require('tsk').ToolStack,
+util = ts.Utility,
+sjs = require('../builds/storejs-server'),
+m = ts.Matchers;
+m.compliant = false;
+
+m.scoped('can create new Store').obj(sjs.Initor()).isValid();
+
+m.scoped('has shell method for instance Stores').obj(sjs.Shell).isValid();
+
+m.scoped('can produce a shell for instance Stores').obj(sjs.Shell()).isTypeOf('object');
+
+m.scoped('can create a new DB Shell').obj(sjs.Initor()).isTypeOf('object');

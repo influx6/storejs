@@ -1,0 +1,5 @@
+var ts = require('tsk').ToolStack,
+util = ts.Utility,
+sjs = require('../builds/storejs-client'),
+m = ts.Matchers;
+m.compliant = false;

@@ -100,7 +100,9 @@
 		var db,nanod,fragment,url;
 		if(db = helpers.fetch.call(couch.Cache,name)) return db;
 
-		db = ts.Promise.create();
+		db = store.Shell();
+		db.p = Promise.create();
+
 		config = ((!config) ? util.clone(couch.defaults) : util.merge(couch.defaults, config));
 
 		url = couch.urlConstruct(config)
@@ -121,20 +123,7 @@
 		db.ID.remove = util.bind(ts.Helpers.HashMaps.remove,db.ID.ids);
 		db.ID.modify = util.bind(ts.Helpers.HashMaps.modify,db.ID.ids);
 
-
 		db.config.name = name;
-
-
-		// db.createView = function(name,view){
-		// 	if(!util.isObject) return false;
-		// 	if(helpers.exists.call(this.views,name)) return false;
-
-		// 	return helpers.add.call(this.views,name,view);
-		// };
-
-		// db.getView = function(name){
-		// 	return helpers.fetch.call(this.views,name);
-		// };
 
 		db.api = function(){ return nanod; };
 
@@ -149,7 +138,7 @@
 
 		db.implode = function(done,fail){
 			var self = this;
-			return this.then(function(){
+			return this.p.then(function(){
 				return couch.destroy(self.config.name);
 			}).done(done).fail(fail).done(function(){
 				util.explode(self);
@@ -158,7 +147,7 @@
 
 		db.info = function(doc){
 			var self = this;
-			return this.then(function(db){
+			return this.p.then(function(db){
 				return Promise.create(function(_self){
 					db.head(doc,function(err,body,header){
 						if(err) return _self.reject(couch.responseFragment(err,body,header));
@@ -172,7 +161,7 @@
 		};
 
 		db.get = function(doc,rev,donefn,errfn){
-			return this.then(function(db){
+			return this.p.then(function(db){
 				return Promise.create(function(_self){
 					db.get(doc,function(err,body){
 						if(err) return _self.reject(err);
@@ -184,7 +173,7 @@
 
 		db.save = function(id,doc,donefn,errfn){
 			var self = this;
-			return this.then(function(db){
+			return this.p.then(function(db){
 				return Promise.create(function(_self){
 					db.insert(doc,id,function(err,body,header){
 						if(err) return _self.reject(couch.responseFragment(err,body,header));
@@ -198,7 +187,7 @@
 
 		db.update = function(id,doc,rev,done,fail){
 			var self = this;
-			return this.then(function(db){
+			return this.p.then(function(db){
 				return Promise.create(function(_self){
 					db.insert(doc,{ doc_name: id, rev: rev || self.ID.fetch(id) },function(err,body,header){
 						if(err) return _self.reject(couch.responseFragment(err,body,header));
@@ -212,7 +201,7 @@
 
 		db.destroy = function(id,rev,donefn,errfn){
 			var self = this;
-			return this.then(function(db){
+			return this.p.then(function(db){
 				return Promise.create(function(_self){
 					db.destroy(id,rev || self.ID.fetch(id),function(err,body,header){
 						if(err) return _self.reject(couch.responseFragment(err,body,header));
@@ -226,14 +215,14 @@
 
 		db.changes = function(fn,params){
 			var self = this;
-			return this.then(function(db){
+			return this.p.then(function(db){
 				db.changes(params,fn);
 			});
 		};
 
 		db.view = function(view,rev,done,fail){
 			var self = this;
-			return this.then(function(db){
+			return this.p.then(function(db){
 				return Promise.create(function(_self){
 					db.view(self.config.name,view,function(err,body,header){
 						if(err) return _self.reject(couch.responseFragment(err,body,header));
@@ -259,7 +248,7 @@
 				};
 
 			if(!self.ID.fetch(doc)) return this.info(doc).then(function(res){ return op(res.header.etag); });
-			return this.then(function(){ return op(self.ID.fetch(doc)); });
+			return this.p.then(function(){ return op(self.ID.fetch(doc)); });
 		};
 
 		db.saveAttachment = function(doc,att,type,params,pipe,rev,encoding){
@@ -279,7 +268,7 @@
 				};
 
 			if(!self.ID.fetch(doc)) return this.info(doc).then(function(res){ return op(res.header.etag); });
-			return this.then(function(){ return op(self.ID.fetch(doc)); });
+			return this.p.then(function(){ return op(self.ID.fetch(doc)); });
 		};
 
 		db.destroyAttachment = function(doc,att,params,encoding){
@@ -298,7 +287,7 @@
 				};
 
 			if(!self.ID.fetch(doc)) return this.info(doc).then(function(res){ return op(res.header.etag); });
-			return this.then(function(){ return op(self.ID.fetch(doc)); });
+			return this.p.then(function(){ return op(self.ID.fetch(doc)); });
 		};
 
 		// db.toSQL = function(){};
@@ -307,29 +296,31 @@
 
 		nanod.db.get(name,function(e,body){
 			if(e && e.message === 'no_db_file'){
-				nanod.db.create(name,function(){ db.resolve(nanod.use(name)); });
+				nanod.db.create(name,function(){ db.p.resolve(nanod.use(name)); });
 			}else{ 
-				db.resolve(nanod.use(name));
+				db.p.resolve(nanod.use(name));
 			}
 		});
 
 		//setup a reference to the nano db instance
-		db.done(function(a){ db.pipe.db = a; });
+		db.p.done(function(a){ db.pipe.db = a; });
 
 		//save basic view for all id and rev of all data
 		db.save('_design/'.concat(name),{ 
 			"_id": '_design/'.concat(name),
-			"views": {
-				"all": {
-					"map": "function(doc){ emit(doc._id,doc._rev); }"
-				},
-			}
+			"views": { "all": { "map": "function(doc){ emit(doc._id,doc._rev); }" } }
 		});
 
 		db.all();
 
 		helpers.add.call(couch.Cache,name,db);
-		return db.promise();
+
+		db.done = util.bind(db.p.done,db.p);
+		db.fail = util.bind(db.p.fail,db.p);
+		db.then = util.bind(db.p.then,db.p);
+		db.always = util.bind(db.p.always,db.p);
+
+		return db;
 	};
 
 })(StoreJS);

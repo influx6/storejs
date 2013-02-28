@@ -13,7 +13,7 @@ StoreJS.Initor = function(){
 };
 
 StoreJS.Shell  = function(){
-	return  {
+	return {
 		pipe: function(){},
 		get: function(){},
 		destroy: function(){},
@@ -21,8 +21,6 @@ StoreJS.Shell  = function(){
 		update: function(){},
 		implode: function(){},
 		all: function(){},
-		updateAll: function(){},
-		collectAll: function(){},
 		api: function(){},
 		sync: function(){},
 	};

@@ -6,7 +6,7 @@ jsc.compile({
 	uglify: false,
 	build_dir:'./builds',
 	src_dir:'./server',
-	src:['../src/storejs.js','couchdb.js'],
+	src:['../src/storejs.js','couchdb.js','mongodb.js'],
 	name: 'storejs-server.js'
 });
 

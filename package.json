@@ -1,23 +1,22 @@
 {
   "name": "storejs",
   "version": "0.0.1",
-  "description": "a simple lightweight model api for both client and server side,a adaptor based solution",
-  "main": "/builds/storejs-server.js",
+  "description": " lightweight database adaptor",
+  "main": "./builds/storejs-server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/influx6/modeljs.git"
+    "url": "http://github.com/influx6/storejs.git"
   },
   "keywords": [
-    "models",
-    "mvc(m)",
-    "client",
-    "server",
-    "couchdb",
-    "model"
+    "storejs",
+    "mongo",
+    "couchdb"
   ],
-  "author": "Alexander Ewetumo",
-  "license": "Mit"
+  "author": "Alexander Adeniyin Ewetumo",
+  "license": "Mit",
+  "readmeFilename": "README.md",
+  "gitHead": "dc6f9bcec29be8151018dd37e3094d949139a0f1"
 }

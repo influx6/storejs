@@ -26,7 +26,7 @@
 	};
 
 	couch.responseFragment = function(err,body,header){
-		return { err:err, body: body, header: header};
+		return { err:err, body: body, header: header , id: (header && header.etag ? header.etag : null) };
 	};
 
 	couch.allDB = function(done,fail){
@@ -315,11 +315,12 @@
 
 		helpers.add.call(couch.Cache,name,db);
 
-		db.done = util.bind(db.p.done,db.p);
-		db.fail = util.bind(db.p.fail,db.p);
-		db.then = util.bind(db.p.then,db.p);
-		db.always = util.bind(db.p.always,db.p);
+		db.done = function(){ db.p.done.apply(db.p,arguments); return this };
+		db.fail = function(){ db.p.fail.apply(db.p,arguments); return this };
+		db.then = function(){ db.p.then.apply(db.p,arguments); return this };
+		db.always = function(){ db.p.always.apply(db.p,arguments); return this };
 
+		
 		return db;
 	};
 

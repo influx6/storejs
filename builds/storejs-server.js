@@ -54,7 +54,7 @@ StoreJS.Shell  = function(){
 	};
 
 	couch.responseFragment = function(err,body,header){
-		return { err:err, body: body, header: header};
+		return { err:err, body: body, header: header , id: (header && header.etag ? header.etag : null) };
 	};
 
 	couch.allDB = function(done,fail){
@@ -336,7 +336,7 @@ StoreJS.Shell  = function(){
 		//save basic view for all id and rev of all data
 		db.save('_design/'.concat(name),{ 
 			"_id": '_design/'.concat(name),
-			"views": { "all": { "map": "function(doc){ emit(doc._id,doc._rev); }" } }
+			"views": { "all": { "map": "function(doc){ emit(doc._id,doc); }" } }
 		});
 
 		db.all();
@@ -348,6 +348,7 @@ StoreJS.Shell  = function(){
 		db.then = function(){ db.p.then.apply(db.p,arguments); return this };
 		db.always = function(){ db.p.always.apply(db.p,arguments); return this };
 
+		
 		return db;
 	};
 

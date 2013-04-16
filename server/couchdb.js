@@ -308,7 +308,7 @@
 		//save basic view for all id and rev of all data
 		db.save('_design/'.concat(name),{ 
 			"_id": '_design/'.concat(name),
-			"views": { "all": { "map": "function(doc){ emit(doc._id,doc._rev); }" } }
+			"views": { "all": { "map": "function(doc){ emit(doc._id,doc); }" } }
 		});
 
 		db.all();
